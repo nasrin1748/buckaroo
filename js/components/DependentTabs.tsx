@@ -9,15 +9,10 @@ import { DFViewer } from './DFViewer';
 import _ from 'lodash';
 import { Operation } from './OperationUtils';
 
-export function OperationDisplayer({
-  filledOperations,
-  style,
-}: {
-  filledOperations: Operation[];
-  style: CSSProperties;
-}): React.JSX.Element {
-  const baseStyle: CSSProperties = { margin: '0', textAlign: 'left' };
-  const localStyle: CSSProperties = { ...baseStyle, ...style };
+//@ts-ignore
+export function OperationDisplayer({ filledOperations, style }) {
+  const baseStyle = { margin: '0', textAlign: 'left' };
+  const localStyle = { ...baseStyle, ...style };
   return (
     <div className="command-displayer" style={{ width: '100%' }}>
       <pre style={localStyle}>{JSON.stringify(filledOperations)}</pre>
@@ -29,11 +24,11 @@ export function PythonDisplayer({
   style,
   generatedPyCode,
 }: {
-  style: CSSProperties;
+  style: any;
   generatedPyCode: string;
 }) {
-  const baseStyle: CSSProperties = { margin: '0', textAlign: 'left' };
-  const localStyle: CSSProperties = { ...baseStyle, ...style };
+  const baseStyle = { margin: '0', textAlign: 'left' };
+  const localStyle = { ...baseStyle, ...style };
   return (
     <div className="python-displayer" style={{ width: '100%' }}>
       <pre style={localStyle}>{generatedPyCode}</pre>
@@ -99,7 +94,7 @@ export function DependentTabs({
   operationResult: OperationResult;
 }) {
   const [tab, _setTab] = useState('DataFrame');
-  const style: CSSProperties = { height: '45vh' };
+  const style = { height: '45vh' };
   console.log('dependenttabs operationResult', operationResult);
   return (
     <div className="dependent-tabs" style={{ width: '100%' }}>

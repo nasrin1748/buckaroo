@@ -3,4 +3,3 @@ dist
 coverage
 **/*.d.ts
 tests
-js/components/RechartTooltip.tsx

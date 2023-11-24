@@ -64,7 +64,7 @@ class BuckarooWidget(DOMWidget):
         'summaryStats': False,
         'reorderdColumns': False,
         'showCommands': True,
-        'auto_clean': True,
+        'autoType': True,
     }).tag(sync=True)
 
 
@@ -92,8 +92,8 @@ class BuckarooWidget(DOMWidget):
                  sampled=True,
                  summaryStats=False,
                  reorderdColumns=False,
-                 showCommands=False,
-                 auto_clean=True,
+                 showCommands=True,
+                 autoType=True,
                  postProcessingF=None,
                  ):
 
@@ -110,13 +110,13 @@ class BuckarooWidget(DOMWidget):
         self.dfConfig = self.get_df_config(df, sampled, reorderdColumns, showCommands)
         #we need dfConfig setup first before we get the proper working_df for auto_cleaning
         self.raw_df = df
-        self.run_autoclean(auto_clean)
+        self.run_autoclean(autoType)
             
         warnings.filterwarnings('default')
 
 
-    def run_autoclean(self, auto_clean):
-        if auto_clean:
+    def run_autoclean(self, autoType):
+        if autoType:
             # this will trigger the setting of self.typed_df
             self.operations = get_auto_type_operations(
                 self.raw_df, metadata_f=self.typing_metadata_f,

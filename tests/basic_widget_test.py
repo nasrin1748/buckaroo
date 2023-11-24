@@ -78,16 +78,10 @@ def test_analysis_pipeline():
     w = BuckarooWidget(simple_df)
     assert w.stats.ap.unit_test() == (True, [])
 
-def test_auto_clean_false():
+def test_autotype_false():
     """  uses built in analysis_management unit tests on the Buckaroo Widget as configured"""
-    w = BuckarooWidget(simple_df, auto_clean=False)
+    w = BuckarooWidget(simple_df, autoType=False)
     assert w.stats.ap.unit_test() == (True, [])
-
-def test_auto_clean_true():
-    """  uses built in analysis_management unit tests on the Buckaroo Widget as configured"""
-    w = BuckarooWidget(simple_df, auto_clean=True)
-    assert w.stats.ap.unit_test() == (True, [])
-
     
 def test_post_processing():
     def my_func(df):
@@ -96,7 +90,7 @@ def test_post_processing():
     bw = BuckarooWidget(simple_df, postProcessingF=my_func)
     assert bw.processed_result == 6
 
-    bw2 = BuckarooWidget(simple_df, auto_clean=False, postProcessingF=my_func)
+    bw2 = BuckarooWidget(simple_df, autoType=False, postProcessingF=my_func)
     assert bw2.processed_result == 6
     
 
