@@ -50,8 +50,6 @@ ONLY_NANS_META = {'datetime': 0, 'datetime_error': 0, 'int': 0, 'int_error': 0, 
 
 
 def test_get_typing_metadata():
-    if int(pd.__version__[0]) < 2:
-        return
     # assert WEIRD_INT == ac.get_typing_metadata(pd.Series([5, 2, 3.1, None, NA]))
     assert INT_META == ac.get_typing_metadata(pd.Series(['181', '182', '183', 'a']))
     assert FLOAT_META == ac.get_typing_metadata(pd.Series(['181.1', '182.2', '183', 'a']))
@@ -117,3 +115,24 @@ def test_coerce_series():
     assert_series_equal(
         ac.coerce_series(pd.Series(['a', 2.0, 3.1, None, NA]), 'float'),
         pd.Series([nan, 2, 3.1, nan, nan], dtype='float'))
+    
+def atest_autotype_df():
+    assert_frame_equal(
+        ac.auto_type_df(
+            pd.DataFrame({
+                'int':pd.Series(['a', 2, 3, 4, None]),
+                'bool':pd.Series(['a', False, True, None]),
+                'int2':pd.Series(['a', 2.0, 3.0, None, NA]),
+                'float':pd.Series(['a', 2.0, 3.1, None, NA]),
+                'allNA':pd.Series([NA, NA, NA,  None, NA]),
+                'string_':pd.Series(['a', 'b', 'c', 'd', 'e'])
+                }
+        )),
+            pd.DataFrame({
+                'int' :  pd.Series([NA, 2,3,4, NA], dtype='UInt8'),
+                'bool':  pd.Series([NA, False, True, NA], dtype='boolean'),
+                'int2':  pd.Series([NA, 2, 3, NA, NA], dtype='UInt8'),
+                'float': pd.Series([nan, 2, 3.1, nan, nan], dtype='float'),
+                'allNA':pd.Series([NA, NA, NA,  None, NA]),
+                'string_':pd.Series(['a', 'b', 'c', 'd', 'e'])
+            }))
