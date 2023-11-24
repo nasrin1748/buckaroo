@@ -7,6 +7,7 @@
 """
 TODO: Add module docstring
 """
+import json
 import warnings
 import traceback
 
@@ -21,11 +22,36 @@ from .auto_clean import get_auto_type_operations, get_typing_metadata, recommend
 from .down_sample import sample
 
 from .analysis import (TypingStats, DefaultSummaryStats, ColDisplayHints)
-from .analysis_management import DfStats, get_df_name
+from .analysis_management import DfStats
+from pandas.io.json import dumps as pdumps
 
-from .serialization_utils import df_to_obj, EMPTY_DF_OBJ
+
+EMPTY_DF_OBJ = {'schema': {'fields': [{'name': 'index', 'type': 'string'}],
+  'primaryKey': ['index'],
+  'pandas_version': '1.4.0'},
+ 'data': []}
 
 
+def dumb_table_sumarize(df):
+    """used when table_hints aren't provided.  Trests every column as a string"""
+    table_hints = {col:{'is_numeric':False}  for col in df}
+    table_hints['index'] = {'is_numeric': False} 
+    return table_hints
+
+
+def df_to_obj(df, order = None, table_hints=None):
+    if order is None:
+        order = df.columns
+    obj = json.loads(df.to_json(orient='table', indent=2, default_handler=str))
+    if table_hints is None:
+        obj['table_hints'] = json.loads(pdumps(dumb_table_sumarize(df)))
+    else:
+        obj['table_hints'] = json.loads(pdumps(table_hints))
+    fields=[{'name':'index'}]
+    for c in order:
+        fields.append({'name':c})
+    obj['schema'] = dict(fields=fields)
+    return obj
 
 
 FAST_SUMMARY_WHEN_GREATER = 1_000_000
@@ -51,7 +77,7 @@ class BuckarooWidget(DOMWidget):
     summaryDf = Dict({}).tag(sync=True)
 
     operation_results = Dict(
-        {'transformed_df': EMPTY_DF_OBJ, 'generated_py_code':'# instantiation, unused'}
+        {'transformed_df':EMPTY_DF_OBJ, 'generated_py_code':'# instantiation, unused'}
     ).tag(sync=True)
 
     dfConfig = Dict(
@@ -104,7 +130,6 @@ class BuckarooWidget(DOMWidget):
         self.postProcessingF = postProcessingF
         self.processed_result = None
         self.transformed_df = None
-        self.df_name = get_df_name(df)
 
         self.setup_from_command_kls_list()
         self.dfConfig = self.get_df_config(df, sampled, reorderdColumns, showCommands)
@@ -113,7 +138,6 @@ class BuckarooWidget(DOMWidget):
         self.run_autoclean(autoType)
             
         warnings.filterwarnings('default')
-
 
     def run_autoclean(self, autoType):
         if autoType:
@@ -204,7 +228,7 @@ class BuckarooWidget(DOMWidget):
     def set_typed_df(self, new_df):
         self.typed_df = new_df
         # stats need to be rerun each time 
-        self.stats = DfStats(self.typed_df, [TypingStats, DefaultSummaryStats, ColDisplayHints], self.df_name)
+        self.stats = DfStats(self.typed_df, [TypingStats, DefaultSummaryStats, ColDisplayHints])
         self.summaryDf = df_to_obj(self.stats.presentation_sdf, self.stats.col_order)
         self.update_based_on_df_config(3)
 

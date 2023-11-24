@@ -3,25 +3,17 @@ import pandas as pd
 from pandas.io.json import dumps as pdumps
 import numpy as np
 from buckaroo.pluggable_analysis_framework import ColAnalysis
-import warnings
 
 def probable_datetime(ser):
-    #turning off warnings in this single function is a bit of a hack.
-    #Understandable since this is explicitly abusing pd.to_datetime
-    #which throws warnings.
-
-    warnings.filterwarnings('ignore')
     s_ser = ser.sample(np.min([len(ser), 500]))
     try:
         dt_ser = pd.to_datetime(s_ser)
         #pd.to_datetime(1_00_000_000_000_000_000) == pd.to_datetime('1973-01-01') 
-        warnings.filterwarnings('default')
         if dt_ser.max() < pd.to_datetime('1973-01-01'):
             return False
         return True
         
     except Exception as e:
-        warnings.filterwarnings('default')
         return False
 
 def get_mode(ser):
@@ -205,27 +197,15 @@ def histogram(ser, nan_per):
     return categorical_histogram(ser, val_counts, nan_per)
 
 class ColDisplayHints(ColAnalysis):
-    requires_summary = ['min', 'max', 'nan_per']
+    requires_summary = ['min', 'max'] # What summary stats does this analysis provide
     provides_summary = [
-        'is_numeric', 'is_integer', 'min_digits', 'max_digits', 'histogram', 'type']
+        'is_numeric', 'is_integer', 'min_digits', 'max_digits', 'histogram']
 
     @staticmethod
     def summary(sampled_ser, summary_ser, ser):
-
-        is_numeric = pd.api.types.is_numeric_dtype(sampled_ser)
+        is_numeric = pd.api.types.is_numeric_dtype(sampled_ser.dtype)
         is_bool = pd.api.types.is_bool_dtype(sampled_ser)
-        _type = "obj"
-        if is_bool:
-            _type = "boolean"
-        elif is_numeric:
-            if pd.api.types.is_float_dtype(sampled_ser):
-                _type = "float"
-            else:
-                _type = "integer"
-        elif pd.api.types.is_string_dtype(sampled_ser):
-            _type = "string"
         base_dict = dict(
-            type=_type,
             is_numeric=is_numeric,
             is_integer=pd.api.types.is_integer_dtype(sampled_ser),
             histogram=histogram(sampled_ser, summary_ser['nan_per']))

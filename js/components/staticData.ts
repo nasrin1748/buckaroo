@@ -28,36 +28,19 @@ export type DFDataRow = Record<string, string | number | boolean | null>;
 export type DFData = DFDataRow[];
 
 export interface ColumnObjHint {
-  type: "obj"
+  is_numeric: false;
   histogram?: any[];
 }
 
-export interface ColumnStringHint {
-  type: "string";
-  histogram?: any[];
-}
-
-export interface ColumnBooleanHint {
-  type: "boolean";
-  histogram?: any[];
-}
-
-export interface ColumnIntegertHint {
-  type: "integer"
+export interface ColumnNumHint {
+  is_numeric: true;
+  is_integer: boolean;
   min_digits: number;
   max_digits: number;
   histogram: any[];
 }
 
-export interface ColumnFloatHint {
-  type: "float"
-  histogram: any[];
-}
-
-
-export type ColumnHint = ColumnObjHint | ColumnIntegertHint | ColumnFloatHint | ColumnStringHint | ColumnBooleanHint;
-
-
+export type ColumnHint = ColumnObjHint | ColumnNumHint;
 export interface DFWhole {
   schema: {
     fields: DFColumn[];
@@ -201,16 +184,16 @@ export const foo: DFWhole = {
     pandas_version: '1.4.0',
   },
   table_hints: {
-    index: {  type:"obj" },
-    tripduration: {  histogram: histograms.num_histo, type:"obj"},
-    starttime: { type:"obj" },
-    stoptime: {  type:"obj" },
-    'start station id': {  type:"obj" },
-    'start station name': {  type:"obj" },
-    'start station latitude': {  type:"obj" },
-    bikeid: {  type:"obj" },
-    'birth year': {  type:"obj" },
-    gender: {  type:"obj" },
+    index: { is_numeric: false },
+    tripduration: { is_numeric: false, histogram: histograms.num_histo },
+    starttime: { is_numeric: false },
+    stoptime: { is_numeric: false },
+    'start station id': { is_numeric: false },
+    'start station name': { is_numeric: false },
+    'start station latitude': { is_numeric: false },
+    bikeid: { is_numeric: false },
+    'birth year': { is_numeric: false },
+    gender: { is_numeric: false },
   },
   data: [
     {
@@ -346,23 +329,25 @@ export const tableDf: DFWhole = {
   ],
   table_hints: {
     'end station name': {
-      
+      is_numeric: false,
       histogram: histograms.categorical_histo_lt,
-      type:"obj" },
-    
+    },
     tripduration: {
-      type:"integer",      
+      is_numeric: true,
+      is_integer: true,
       min_digits: 3,
       max_digits: 4,
       histogram: histograms.num_histo,
     },
     'start station name': {
-      
+      is_numeric: false,
       histogram: histograms.bool_histo,
-      type:"string" },
+    },
     floatCol: {
-      type:"float",
-      
+      is_numeric: true,
+      is_integer: false,
+      min_digits: 1,
+      max_digits: 3,
       histogram: [
         { name: 521, cat_pop: 0.0103 },
         { name: 358, cat_pop: 0.0096 },
@@ -377,49 +362,21 @@ export const tableDf: DFWhole = {
       ],
     },
     nanNumeric: {
-      type: "integer", 
+      is_numeric: true,
+      is_integer: true,
       min_digits: 1,
       max_digits: 3,
       histogram: histograms.num_histo,
     },
     nanFloat: {
-      type:"float",
+      is_numeric: true,
+      is_integer: false,
+      min_digits: 1,
+      max_digits: 3,
       histogram: histograms.num_histo,
     },
     nanObject: {
-      
-      type:"obj"
+      is_numeric: false,
     },
   },
 };
-
-export const stringIndexDf: DFWhole ={
-  schema: {
-    fields: [
-      {name: 'index', type:'integer'},
-      {name: 'a', type:'integer'},
-      {name: 'b', type:'boolean'},
-      {name: 'strings', type:'boolean'}],
-    primaryKey: ['index'],
-    pandas_version: '1.4.0',
-  },
-  data: [{index: 0, a: 1, b: true,   strings:"a", },
-	 {index: 1, a: 2, b: false,  strings:"", },
-	 {index: 2, a: 3, b: false,  strings:" ", }],
-  table_hints: {
-    a: {type:"integer",
-      min_digits: 1,
-      max_digits: 1,
-  
-  	histogram: [{name: 1, cat_pop: 50.0},
-		      {name: 2, cat_pop: 50.0},
-		      {name: 'longtail', unique: 100.0}]},
-    b: {type:"integer",
-	min_digits: 1,
-	max_digits: 1,
-	histogram: [{name: true, cat_pop: 50.0},
-		    {name: false, cat_pop: 50.0},
-		    {name: 'longtail', unique: 100.0}]},
-    strings: {type:"string",
-	      histogram: []}
-  }}

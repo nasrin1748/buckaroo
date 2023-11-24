@@ -3,7 +3,7 @@ import React, { useState, useRef } from 'react';
 import _ from 'lodash';
 import { AgGridReact } from 'ag-grid-react'; // the AG Grid React Component
 import { ColDef, GridOptions } from 'ag-grid-community';
-import { basicIntFormatter } from './gridUtils';
+import { intFormatter } from './gridUtils';
 export type setColumFunc = (newCol: string) => void;
 
 export interface DfConfig {
@@ -82,10 +82,10 @@ export function StatusBar({
 
   const rowData = [
     {
-      totalRows: basicIntFormatter.format(totalRows),
+      totalRows: intFormatter.format(totalRows),
       columns,
-      rowsShown: basicIntFormatter.format(rowsShown),
-      sampleSize: basicIntFormatter.format(sampleSize),
+      rowsShown: intFormatter.format(rowsShown),
+      sampleSize: intFormatter.format(sampleSize),
       sampled: sampled ? '1' : '0',
       summaryStats: summaryStats ? '1' : '0',
       // reorderdColumns: reorderdColumns ? "1" : "ό",
